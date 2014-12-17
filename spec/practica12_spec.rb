@@ -1,4 +1,5 @@
 require "arbol"
+require 'spec_helper'
 
 describe Naranjero do
 	before :each do
@@ -8,32 +9,34 @@ describe Naranjero do
 
 		describe "A ver si hace algo" do
 			it "Hace algo" do
-				recolector = Thread.new {
-					@mutex.syncronize {
-					puts a
-					a = "NoNaranja"
-					@recurso.wait(@mutex)
-					while(@arbol.naranjas > 0)
-						@arbol.recolectar_una
+				crecer = Thread.new do
+					loop do
+						sleep rand 0
+						if arbol.edad < arbol.muerte
+							arbol.uno_mas
+							puts "Arbol creciendo"
+						else 
+							puts "Arbol muerto"
+							break
+						end
 					end
-					a = "NaranjaR"
-					puts a
-					}
-				}
-				crecer = Thread.new {
-					@mutex.syncronize {
-					@arbol.uno_mas
-					a = "Pasando"
-					puts a
-					if(@arbol.naranjas > 0)
-						@recurso.signal
-						puts "Hay naranjas"
-						a = "Naranja"
-						puts a
+				end
+
+				recolector = Thread.new do
+					loop do
+						sleep (rand 0) + 2
+						while arbol.naranjas > 0
+							arbol.recolectar_una
+							puts "Naranja recogida"
+						end
+						if(arbol.naranjas_recogidas >= arbol.naranjas_producidas)
+							break
+						end
 					end
-					}
-				}
-				a.should eq("Naranja")
+				end
+				crecer.join
+				recolector.join
+				arbol.naranjas_recogidas.should eq(arbol.naranjas_producidas)
 			end
 		end
 	end
