@@ -1,0 +1,3 @@
+module Pract12
+  VERSION = "0.0.1"
+end
