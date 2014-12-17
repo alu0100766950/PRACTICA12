@@ -29,27 +29,3 @@ class Naranjero
 		@naranjas = @naranjas - 1
 	end
 end
-
-arbol = Naranjero.new
-mutex = Mutex.new
-recurso = ConditionVariable.new
-recolector = Thread.new {
-mutex.syncronize {
-puts "Esperando por naranja"
-recurso.wait(mutex)
-while(arbol.naranjas > 0)
-arbol.recolectar_una
-end
-puts "Naranja recogida"
-}
-}
-crecer = Thread.new {
-mutex.syncronize {
-arbol.uno_mas
-puts "Anno pasado"
-if(arbol.naranjas > 0)
-recurso.signal
-puts "Hay naranjas"
-end
-}
-}
